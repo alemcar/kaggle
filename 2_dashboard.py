@@ -150,14 +150,35 @@ with col_g3:
 with col_g4:
     st.plotly_chart(fig4, use_container_width=True)
 
-# --- Gráfico 5 — Cobrança mensal: cancelados vs ativos (box plot) ---
-# Box plot revela mediana, quartis e outliers — médias esconderiam a distribuição real
-fig5 = px.box(df, x="Situação", y="MonthlyCharges",
-              color="Situação",
-              color_discrete_map={"Cancelou": "#E8341C", "Ativo": "#2E5FA3"},
-              title="Cobrança mensal — cancelados vs ativos",
-              labels={"MonthlyCharges": "Cobrança mensal (US$)"})
-fig5.update_layout(showlegend=False)
+# --- Gráfico 5 — Cobrança mensal: cancelados vs ativos ---
+# Esquerda: média por grupo (barras) | Direita: box plot com distribuição completa
+
+# Barras: cobrança média por situação
+media_cobranca = df.groupby("Churn")["MonthlyCharges"].mean().round(2).reset_index()
+media_cobranca.columns = ["Churn", "media"]
+media_cobranca["Churn"] = media_cobranca["Churn"].map({"Yes": "Cancelou", "No": "Ativo"})
+
+fig5a = px.bar(media_cobranca, x="Churn", y="media",
+               text="media",
+               color="Churn",
+               color_discrete_map={"Cancelou": "#E8341C", "Ativo": "#2E5FA3"},
+               title="Cobrança média — cancelados vs ativos")
+fig5a.update_traces(texttemplate="R$ %{text:.2f}", textposition="outside")
+fig5a.update_layout(yaxis_visible=False, yaxis_showgrid=False, showlegend=False)
+
+# Box plot: distribuição completa — sem alterações
+fig5b = px.box(df, x="Situação", y="MonthlyCharges",
+               color="Situação",
+               color_discrete_map={"Cancelou": "#E8341C", "Ativo": "#2E5FA3"},
+               title="Cobrança mensal — cancelados vs ativos",
+               labels={"MonthlyCharges": "Cobrança mensal (US$)"})
+fig5b.update_layout(showlegend=False)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.plotly_chart(fig5a, use_container_width=True)
+with col2:
+    st.plotly_chart(fig5b, use_container_width=True)
 
 # --- Gráfico 6 — Impacto dos serviços na retenção (barras horizontais agrupadas) ---
 # Compara "Sim" vs "Não" para TechSupport, OnlineSecurity e OnlineBackup lado a lado
@@ -178,11 +199,7 @@ fig6 = px.bar(df_servicos, x="taxa_churn", y="Serviço",
 fig6.update_traces(texttemplate="%{text}%", textposition="outside")
 fig6.update_layout(xaxis_visible=False)
 
-col_g5, col_g6 = st.columns(2)
-with col_g5:
-    st.plotly_chart(fig5, use_container_width=True)
-with col_g6:
-    st.plotly_chart(fig6, use_container_width=True)
+st.plotly_chart(fig6, use_container_width=True)
 
 # --- Tabela detalhada ---
 st.subheader("Dados detalhados")
