@@ -1,0 +1,13 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # roda a cada 4 horas
+  workflow_dispatch:         # permite rodar manualmente se necessário
+
+jobs:
+  wake_app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app
+        run: curl -s -o /dev/null -w "%{http_code}" https://kaggle-data-cx-cs.streamlit.app/
