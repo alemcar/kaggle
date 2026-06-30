@@ -2,12 +2,25 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # roda a cada 3 horas
-  workflow_dispatch:         # permite rodar manualmente se necessário
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
 
 jobs:
   wake_app:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Ping app
-        run: curl -s -o /dev/null -w "%{http_code}" https://kaggle-data-cx-cs.streamlit.app/
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Acordar o app
+        run: python scripts/keep_alive.py
