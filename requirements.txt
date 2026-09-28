@@ -1,4 +1,4 @@
-pandas
-streamlit
-plotly
-openpyxl
+pandas>=2.2.0
+streamlit>=1.40.0
+plotly>=5.20.0
+openpyxl>=3.1.0
